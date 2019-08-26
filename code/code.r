@@ -3,7 +3,7 @@
 
 rm(list = ls())
 
-source(file = "myFunctions.r")
+source(file = "code/myFunctions.r")
 
 packages_load_install(c("dplyr", "lubridate"))
 
@@ -16,7 +16,7 @@ packages_load_install(c("dplyr", "lubridate"))
 #   hRH    = HOURLY RELATIVE HUMIDITY (%)
 #   hLW    = HOURLY LEAF WETNESS (SCALE 1-10)
 
-data <- read.csv(file = "data_6days.csv",
+data <- read.csv(file = "data/data_6days.csv",
                  header = TRUE,
                  stringsAsFactors = FALSE)
 
@@ -131,7 +131,7 @@ resultCal <- left_join(x = calVar,
                        by = "Date")
 
 write.csv(x = resultCal,
-          file = "calculatedVariables.csv",
+          file = "result/calculatedVariables.csv",
           row.names = FALSE)
 
 # Action Threshold: ---------------------------------------------------------------------------
@@ -208,4 +208,4 @@ while (currentDay <= max(result$Date) + 1) {
 
 
 
-write.csv(x = actionTable %>% arrange(desc(date)), file = "result.csv", row.names = FALSE)
+write.csv(x = actionTable %>% arrange(desc(date)), file = "result/result.csv", row.names = FALSE)
