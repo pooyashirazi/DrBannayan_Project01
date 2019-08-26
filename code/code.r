@@ -126,6 +126,13 @@ for (i in 1:nrow(result)) {
     
 }
 
+result <- result %>% 
+    mutate(ClassNumber = ifelse(test = Class == "NonConducive",
+                                yes = 0.0,
+                                no = ifelse(test = Class == "Moderate",
+                                            yes = 0.5,
+                                            no = 1)))
+
 resultCal <- left_join(x = calVar,
                        y = result,
                        by = "Date")
@@ -143,27 +150,17 @@ actionTable <- data.frame(date                 = NaN,
                           expected_disease     = NaN,
                           spray_recommendation = NaN,
                           next_evaluation      = NaN,
-                          PMI                  = NaN)
+                          PMI                  = NaN,
+                          NewPMI               = NaN)
 
 currentDay <- min(result$Date) + 6
 i = 1
 
 while (currentDay <= max(result$Date) + 1) {
     
-    classVector <- result[which(x = result$Date == currentDay - 6):(which(x = result$Date == currentDay - 1)), "Class"]
+    aT <- PMI(result, currentDay)
     
-    resultCondition <- left_join(x = data.frame(Class = c("NonConducive", "Moderate", "Severe")),
-                                 y = as.data.frame(table(Class = classVector)))
-    
-    resultCondition[is.na(resultCondition)] <- 0
-    
-    aT <- actionThreshold(nNonConducive = resultCondition[which(resultCondition$Class == "NonConducive"), "Freq"], 
-                          nModerate     = resultCondition[which(resultCondition$Class == "Moderate"), "Freq"],
-                          nSevere       = resultCondition[which(resultCondition$Class == "Severe"), "Freq"],
-                          vector        = classVector, 
-                          value         = "NonConducive")
-    
-    actionTable[i, ] <- c(as.character(currentDay), aT[1], aT[2], aT[3], aT[4])
+    actionTable[i, ] <- c(as.character(currentDay), aT[1], aT[2], aT[3], aT[4], aT[5])
     
     
     if (aT[3] == "1 day later") {
@@ -176,7 +173,7 @@ while (currentDay <= max(result$Date) + 1) {
             if (currentDay > max(result$Date) + 1) {
                 break
             }
-            actionTable[i, ] <- c(as.character(currentDay), "No evaluation", "Don't spray", paste0((3 - k), ifelse(test = (3 - k) > 1, yes = " days later", no = " day later")), PMI(result, currentDay))
+            actionTable[i, ] <- c(as.character(currentDay), "No evaluation", "Don't spray", paste0((3 - k), ifelse(test = (3 - k) > 1, yes = " days later", no = " day later")), PMI(result, currentDay)[4], PMI(result, currentDay)[5])
         }
         currentDay = currentDay + 1
         i = i + 1
@@ -187,7 +184,7 @@ while (currentDay <= max(result$Date) + 1) {
             if (currentDay > max(result$Date) + 1) {
                 break
             }
-            actionTable[i, ] <- c(as.character(currentDay), "No evaluation", "Don't spray", paste0((6 - k), ifelse(test = (6 - k) > 1, yes = " days later", no = " day later")), PMI(result, currentDay))
+            actionTable[i, ] <- c(as.character(currentDay), "No evaluation", "Don't spray", paste0((6 - k), ifelse(test = (6 - k) > 1, yes = " days later", no = " day later")), PMI(result, currentDay)[4], PMI(result, currentDay)[5])
         }
         currentDay = currentDay + 1
         i = i + 1
@@ -198,7 +195,7 @@ while (currentDay <= max(result$Date) + 1) {
             if (currentDay > max(result$Date) + 1) {
                 break
             }
-            actionTable[i, ] <- c(as.character(currentDay), "No evaluation", "Don't spray", paste0((16 - k), ifelse(test = (16 - k) > 1, yes = " days later", no = " day later")), PMI(result, currentDay))
+            actionTable[i, ] <- c(as.character(currentDay), "No evaluation", "Don't spray", paste0((16 - k), ifelse(test = (16 - k) > 1, yes = " days later", no = " day later")), PMI(result, currentDay)[4], PMI(result, currentDay)[5])
         }
         currentDay = currentDay + 1
         i = i + 1
