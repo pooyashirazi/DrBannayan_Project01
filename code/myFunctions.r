@@ -192,6 +192,7 @@ actionThreshold <- function(nNonConducive, nModerate, nSevere, vector, value) {
 # Calculate PMI
 PMI <- function(result, currentDay) {
     classVector <- result[which(x = result$Date == currentDay - 6):(which(x = result$Date == currentDay - 1)), "Class"]
+    classNumberVector <- result[which(x = result$Date == currentDay - 6):(which(x = result$Date == currentDay - 1)), "ClassNumber"]
     
     resultCondition <- left_join(x = data.frame(Class = c("NonConducive", "Moderate", "Severe")),
                                  y = as.data.frame(table(Class = classVector)))
@@ -203,8 +204,9 @@ PMI <- function(result, currentDay) {
                           nSevere       = resultCondition[which(resultCondition$Class == "Severe"), "Freq"],
                           vector        = classVector, 
                           value         = "NonConducive")
+    aT[5] <- mean(classNumberVector)
     
-    return(aT[4])
+    return(aT)
 }
 
 
